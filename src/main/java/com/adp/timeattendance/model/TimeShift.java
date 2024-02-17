@@ -42,10 +42,6 @@ public class TimeShift {
         return shiftIn;
     }
 
-    public void setShiftIn(Timestamp shiftIn) {
-        this.shiftIn = shiftIn;
-    }
-
     public Timestamp getShiftOut() {
         return shiftOut;
     }
@@ -53,4 +49,19 @@ public class TimeShift {
     public void setShiftOut(Timestamp shiftOut) {
         this.shiftOut = shiftOut;
     }
+
+    public void setShiftIn(Timestamp shiftIn) {
+        this.shiftIn = shiftIn;
+    }
+
+    @Override
+    public String toString() {
+        return "TimeShift{" +
+                "id=" + id +
+                ", shiftIn=" + shiftIn +
+                ", shiftOut=" + shiftOut +
+                '}';
+    }
+
+
 }

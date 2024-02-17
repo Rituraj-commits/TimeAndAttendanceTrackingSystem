@@ -1,9 +1,11 @@
 package com.adp.timeattendance.model;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 
 import com.adp.timeattendance.enums.ClockEvent;
 
+import com.adp.timeattendance.enums.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 
 @Entity
 @Table(name="TimeRecord_Group5_Jan16")
@@ -23,7 +26,7 @@ public class TimeRecord {
 	@Column
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "empId")
 	private Employee employeeId;
@@ -41,12 +44,18 @@ public class TimeRecord {
 	@Column
 	private boolean lateArrival;
 
+	@Column
+	@Enumerated(EnumType.STRING)
+	private Status status;
+
+	@Column
+	private Date attendanceDate;
+
 	public TimeRecord() {
 		super();
 	}
 
-	public TimeRecord(Integer id, Employee employeeId, ClockEvent clockEvent, Timestamp clockTime, Integer overtimeHours,
-			boolean lateArrival) {
+	public TimeRecord(Integer id, Employee employeeId, ClockEvent clockEvent, Timestamp clockTime, Integer overtimeHours, boolean lateArrival, Status status, Date attendanceDate) {
 		super();
 		this.id = id;
 		this.employeeId = employeeId;
@@ -54,6 +63,8 @@ public class TimeRecord {
 		this.clockTime = clockTime;
 		this.overtimeHours = overtimeHours;
 		this.lateArrival = lateArrival;
+		this.status = status;
+		this.attendanceDate = attendanceDate;
 	}
 
 	public Integer getId() {
@@ -104,11 +115,19 @@ public class TimeRecord {
 		this.lateArrival = lateArrival;
 	}
 
-	@Override
-	public String toString() {
-		return "TimeRecord [id=" + id + ", employeeId=" + employeeId + ", clockEvent=" + clockEvent + ", clockTime="
-				+ clockTime + ", overtimeHours=" + overtimeHours + ", lateArrival=" + lateArrival + "]";
+	public Status getStatus() {
+		return status;
 	}
-	
-	
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+
+	public Date getAttendanceDate() {
+		return attendanceDate;
+	}
+
+	public void setAttendanceDate(Date attendanceDate) {
+		this.attendanceDate = attendanceDate;
+	}
 }
