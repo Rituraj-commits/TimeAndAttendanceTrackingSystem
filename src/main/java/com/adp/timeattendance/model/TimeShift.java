@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import java.sql.Timestamp;
+import java.sql.Time;
+import java.sql.Time;
 
 @Entity
 @Component
+@Table(name = "TimeShift_G5_Jan16")
 public class TimeShift {
 
     @Id
@@ -15,16 +17,17 @@ public class TimeShift {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @Column
-    private Timestamp shiftIn;
 
     @Column
-    private Timestamp shiftOut;
+    private Time shiftIn;
+
+    @Column
+    private Time shiftOut;
 
     public TimeShift() {
     }
 
-    public TimeShift(Integer id, Timestamp shiftIn, Timestamp shiftOut) {
+    public TimeShift(Integer id, Time shiftIn, Time shiftOut) {
         this.id = id;
         this.shiftIn = shiftIn;
         this.shiftOut = shiftOut;
@@ -38,19 +41,19 @@ public class TimeShift {
         this.id = id;
     }
 
-    public Timestamp getShiftIn() {
+    public Time getShiftIn() {
         return shiftIn;
     }
 
-    public Timestamp getShiftOut() {
+    public Time getShiftOut() {
         return shiftOut;
     }
 
-    public void setShiftOut(Timestamp shiftOut) {
+    public void setShiftOut(Time shiftOut) {
         this.shiftOut = shiftOut;
     }
 
-    public void setShiftIn(Timestamp shiftIn) {
+    public void setShiftIn(Time shiftIn) {
         this.shiftIn = shiftIn;
     }
 

@@ -25,13 +25,8 @@ public class EmployeeService {
 
     public Employee read(Integer id)
     {
-        Optional<Employee> temp = employeeRepository.findById(id);
-        Employee e=null;
-        if(temp.isPresent())
-        {
-            e=temp.get();
-        }
-        return e;
+
+       return employeeRepository.findById(id).orElse(null);
     }
 
     public Employee update(Employee employee) {

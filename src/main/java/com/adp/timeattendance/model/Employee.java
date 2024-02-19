@@ -4,23 +4,20 @@ package com.adp.timeattendance.model;
 import com.adp.timeattendance.enums.Department;
 import com.adp.timeattendance.enums.JobTitle;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name="Employee_Group5_Jan16")
+@Table(name="Employee_G5_Jan16")
 public class Employee {
 	
 	@Id
 	@Column
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
+
+	@ManyToOne
+	@JoinColumn(name="ShiftId")
+	private TimeShift timeShift;
 
 
 	@Column(nullable = false)
@@ -32,11 +29,11 @@ public class Employee {
 	@Column
 	private String phone;
 	
-	@Column
+	@Column(columnDefinition = "VARCHAR(50)")
 	@Enumerated(EnumType.STRING)
 	private JobTitle jobTitle;
 
-	@Column
+	@Column(columnDefinition = "VARCHAR(50)")
 	@Enumerated(EnumType.STRING)
 	private Department department;
 	

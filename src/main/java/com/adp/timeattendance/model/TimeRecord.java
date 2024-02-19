@@ -1,10 +1,10 @@
 package com.adp.timeattendance.model;
 
 import java.sql.Date;
-import java.sql.Timestamp;
+import java.sql.Time;
 
 import com.adp.timeattendance.enums.ClockEvent;
-
+import com.adp.timeattendance.enums.LateArrivalStatus;
 import com.adp.timeattendance.enums.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,7 +19,7 @@ import jakarta.persistence.Table;
 import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 
 @Entity
-@Table(name="TimeRecord_Group5_Jan16")
+@Table(name="TimeRecord_G5_Jan16")
 public class TimeRecord {
 	
 	@Id
@@ -31,21 +31,23 @@ public class TimeRecord {
 	@JoinColumn(name = "empId")
 	private Employee employeeId;
 	
-	@Column
+
 	@Enumerated(EnumType.STRING)
+	@Column(columnDefinition = "VARCHAR(50)")
 	private ClockEvent clockEvent;
 	
 	@Column
-	private Timestamp clockTime;
+	private Time clockTime;
 	
 	@Column
 	private Integer overtimeHours;
 	
-	@Column
-	private boolean lateArrival;
-
-	@Column
 	@Enumerated(EnumType.STRING)
+	@Column(columnDefinition = "VARCHAR(50)")
+	private LateArrivalStatus lateArrival;
+
+	@Enumerated(EnumType.STRING)
+	@Column(columnDefinition = "VARCHAR(50)")
 	private Status status;
 
 	@Column
@@ -55,7 +57,7 @@ public class TimeRecord {
 		super();
 	}
 
-	public TimeRecord(Integer id, Employee employeeId, ClockEvent clockEvent, Timestamp clockTime, Integer overtimeHours, boolean lateArrival, Status status, Date attendanceDate) {
+	public TimeRecord(Integer id, Employee employeeId, ClockEvent clockEvent, Time clockTime, Integer overtimeHours, LateArrivalStatus lateArrival, Status status, Date attendanceDate) {
 		super();
 		this.id = id;
 		this.employeeId = employeeId;
@@ -91,11 +93,11 @@ public class TimeRecord {
 		this.clockEvent = clockEvent;
 	}
 
-	public Timestamp getClockTime() {
+	public Time getClockTime() {
 		return clockTime;
 	}
 
-	public void setClockTime(Timestamp clockTime) {
+	public void setClockTime(Time clockTime) {
 		this.clockTime = clockTime;
 	}
 
@@ -107,11 +109,11 @@ public class TimeRecord {
 		this.overtimeHours = overtimeHours;
 	}
 
-	public boolean isLateArrival() {
+	public LateArrivalStatus isLateArrival() {
 		return lateArrival;
 	}
 
-	public void setLateArrival(boolean lateArrival) {
+	public void setLateArrival(LateArrivalStatus lateArrival) {
 		this.lateArrival = lateArrival;
 	}
 
