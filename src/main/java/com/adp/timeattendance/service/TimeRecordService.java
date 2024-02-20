@@ -3,11 +3,15 @@ package com.adp.timeattendance.service;
 import com.adp.timeattendance.enums.ClockEvent;
 import com.adp.timeattendance.enums.LateArrivalStatus;
 import com.adp.timeattendance.enums.Status;
+import com.adp.timeattendance.model.Attendance;
 import com.adp.timeattendance.model.Employee;
 import com.adp.timeattendance.model.TimeRecord;
 import com.adp.timeattendance.model.TimeShift;
+import com.adp.timeattendance.repository.AttendanceRepository;
 import com.adp.timeattendance.repository.TimeRecordRepository;
 
+
+import jakarta.persistence.PostPersist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,89 +20,105 @@ import java.util.List;
 
 @Service
 public class TimeRecordService {
-	@Autowired
-	private TimeRecordRepository timeRecordRepository;
+    @Autowired
+    private TimeRecordRepository timeRecordRepository;
 
-	//check
-	@Autowired // Set values for constructor
-	private TimeShift timeShift;
-	
-	@Autowired
-	private EmployeeService employeeService;
-	
-	public List<TimeRecord> getTimeRecordByEmployeeId(Integer employeeId) { // get employee attendance report by id
-		
-		Employee employee = employeeService.read(employeeId);
-		if(employee != null) {
-			return timeRecordRepository.findByEmployeeId(employee);
-		}
-		
-		return null;
-	}
+    //check
+    @Autowired // Set values for constructor
+    private TimeShift timeShift;
+
+    @Autowired
+    private EmployeeService employeeService;
+
+    @Autowired
+    private AttendanceRepository attendanceRepository;
+
+    public List<TimeRecord> getTimeRecordByEmployeeId(Integer employeeId) { // get employee attendance report by id
+
+        Employee employee = employeeService.read(employeeId);
+        if (employee != null) {
+            return timeRecordRepository.findByEmployeeId(employee);
+        }
+
+        return null;
+    }
+
+
+    public TimeRecord createTimeRecord(TimeRecord timeRecord) {
+		Attendance attendance = new Attendance();
+		attendance.setOvertimeHours(calculateOvertimeHours(timeRecord));
+		attendance.setLateArrival((checkLateArrival(timeRecord))?LateArrivalStatus.LATE:LateArrivalStatus.NOT_LATE);
+		attendance.setStatus((checkStatus(timeRecord))?Status.PRESENT:Status.ABSENT);
+		attendance.setEmployeeId(timeRecord.getEmployeeId());
+        attendance.setAttendanceDate(timeRecord.getAttendanceDate());
+        attendanceRepository.save(attendance);
+        return timeRecordRepository.save(timeRecord);
+    }
+
+    public List<TimeRecord> generateAttendanceReport() {
+        return timeRecordRepository.getAttendanceDetails();
+    }
+
+    public List<TimeRecord> getAllTimeRecords()  { return timeRecordRepository.findAll(); }
+
+    public TimeRecord generateAttendanceReportById(Integer id) {
+        return timeRecordRepository.getAttendanceDetailsById(id);
+    }
+
+    public List<TimeRecord> deleteTimeRecordById(Integer id){
+        Employee employee = employeeService.read(id);
+        List<TimeRecord> temp = timeRecordRepository.findByEmployeeId(employee);
+        if(temp!=null)
+        {
+            timeRecordRepository.deleteAllInBatch(temp);
+        }
+        return temp;
+    }
 
 
 
-	public Integer calculateOvertimeHours(TimeRecord timeRecord) {
 
-		Time t1 = timeShift.getShiftOut();
-		Time t2 = timeRecord.getClockTime();
+    public Integer calculateOvertimeHours(TimeRecord timeRecord) {
 
-		int comparisonResult = t1.compareTo(t2);
+        Employee employee = timeRecord.getEmployeeId();
 
-		boolean clock_out = timeRecord.getClockEvent().equals(ClockEvent.CLOCK_OUT);
+        TimeShift timeShift = employee.getTimeShift();
 
-		if (clock_out && (comparisonResult < 0)) { // calculating overtime hours
-			long milliseconds = t2.getTime() - t1.getTime();
-			Integer hours = (int) milliseconds / (1000 * 60 * 60);
+        Integer hours = 0;
 
-			timeRecord.setOvertimeHours(hours);
+        Time t1 = timeShift.getShiftOut();
+        Time t2 = timeRecord.getClockOut();
 
-		}
-		return timeRecord.getOvertimeHours();
-	}
+        int comparisonResult = t1.compareTo(t2);
 
-	public Boolean checkLateArrival(TimeRecord timeRecord) {
-		Time t1 = timeShift.getShiftIn();
-		Time t2 = timeRecord.getClockTime();
+        if (comparisonResult < 0) { // calculating overtime hours
+            long milliseconds = t2.getTime() - t1.getTime();
+            hours = (int) milliseconds / (1000 * 60 * 60);
 
-		int comparisonResult = t1.compareTo(t2);
+        }
+        return hours;  //set overtime hours in attendance
+    }
 
-		boolean clock_in = timeRecord.getClockEvent().equals(ClockEvent.CLOCK_IN);
+    public Boolean checkStatus(TimeRecord timeRecord) {
+        return timeRecord.getClockIn() != null;
+    }
 
-		if (clock_in && (comparisonResult >= 0)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    public Boolean checkLateArrival(TimeRecord timeRecord) {
 
-	public TimeRecord createTimeRecord(TimeRecord timeRecord) { // Calculate overtime hours and check Late Arrival
-		Integer overtimehours = calculateOvertimeHours(timeRecord);
-		Boolean isLate = checkLateArrival(timeRecord);
+        Employee employee = timeRecord.getEmployeeId();
 
-		timeRecord.setOvertimeHours(overtimehours);
+        TimeShift timeShift = employee.getTimeShift();
 
-		if (isLate)
-			timeRecord.setLateArrival(LateArrivalStatus.LATE);
-		else
-			timeRecord.setLateArrival(LateArrivalStatus.NOT_LATE);
+        Time t1 = timeShift.getShiftIn();
 
-		if (timeRecord.getClockEvent() == null) {
-			timeRecord.setStatus(Status.ABSENT);
-		} else {
-			timeRecord.setStatus(Status.PRESENT);
-		}
+        Time t2 = timeRecord.getClockIn();
 
-		return timeRecordRepository.save(timeRecord);
+        int comparisonResult = t1.compareTo(t2);
 
-	}
-
-	public List<TimeRecord> generateAttendanceReport() {
-		return timeRecordRepository.getAttendanceDetails();
-	}
-
-	public TimeRecord generateAttendanceReportById(Integer id){
-		return timeRecordRepository.getAttendanceDetailsById(id);
-	}
-
+        if (comparisonResult >= 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

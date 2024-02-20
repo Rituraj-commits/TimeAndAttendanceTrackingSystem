@@ -5,20 +5,14 @@ import java.sql.Date;
 import com.adp.timeattendance.enums.LateArrivalStatus;
 import com.adp.timeattendance.enums.Status;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name="Attendance_G5_Jan16")
 public class Attendance {
 	
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 	
 	@ManyToOne
