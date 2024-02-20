@@ -1,7 +1,10 @@
 package com.adp.timeattendance.service;
 
 import com.adp.timeattendance.model.Employee;
+import com.adp.timeattendance.model.TimeRecord;
+import com.adp.timeattendance.repository.AttendanceRepository;
 import com.adp.timeattendance.repository.EmployeeRepository;
+import com.adp.timeattendance.repository.TimeRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +16,12 @@ public class EmployeeService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private AttendanceRepository attendanceRepository;
+
+    @Autowired
+    private TimeRecordRepository timeRecordRepository;
 
     public Employee create(Employee employee)
     {
@@ -39,13 +48,14 @@ public class EmployeeService {
         return temp;
     }
 
-    public Employee delete(Integer id) {
-        Employee temp = read(id);
-        if(temp!=null)
+    public Employee delete(Integer id) {     // Deletion should happen in such a way that it removes inconsistency in db
+        Employee employee = read(id);
+        if(employee!=null)
         {
-            employeeRepository.delete(temp);
+            employeeRepository.delete(employee);
+
         }
-        return temp;
+        return employee;
     }
 
 
