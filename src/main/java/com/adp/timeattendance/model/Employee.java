@@ -36,14 +36,16 @@ public class Employee {
 	@Column(columnDefinition = "VARCHAR(50)")
 	@Enumerated(EnumType.STRING)
 	private Department department;
-	
+
 	public Employee() {
 		super();
 	}
-	
-	public Employee(Integer id, String name, String email, String phone, JobTitle jobTitle, Department department) {
+
+	public Employee(Integer id, TimeShift timeShift, String name, String email, String phone, JobTitle jobTitle,
+			Department department) {
 		super();
 		this.id = id;
+		this.timeShift = timeShift;
 		this.name = name;
 		this.email = email;
 		this.phone = phone;
@@ -57,6 +59,14 @@ public class Employee {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public TimeShift getTimeShift() {
+		return timeShift;
+	}
+
+	public void setTimeShift(TimeShift timeShift) {
+		this.timeShift = timeShift;
 	}
 
 	public String getName() {
@@ -97,12 +107,6 @@ public class Employee {
 
 	public void setDepartment(Department department) {
 		this.department = department;
-	}
-
-	@Override
-	public String toString() {
-		return "Employee [id=" + id + ", name=" + name + ", email=" + email + ", phone=" + phone + ", jobTitle="
-				+ jobTitle + ", department=" + department + "]";
 	}
 	
 	
