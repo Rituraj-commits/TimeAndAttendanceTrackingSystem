@@ -27,6 +27,13 @@ public class EmployeeController {
         if(employee!=null) return ResponseEntity.ok(employee);
         return ResponseEntity.notFound().build();
     }
+    
+    @PostMapping
+    public ResponseEntity<Employee> addEmployee(@RequestBody Employee newEmployee)
+    {
+    	Employee createdEmployee = employeeService.create(newEmployee);
+    	return ResponseEntity.ok(createdEmployee);
+    }
 
     @PutMapping
     public ResponseEntity<Employee> updateEmployeeById(@RequestBody Employee updatedEmployee){

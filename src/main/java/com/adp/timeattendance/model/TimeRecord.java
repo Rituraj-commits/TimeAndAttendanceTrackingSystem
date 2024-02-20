@@ -31,25 +31,12 @@ public class TimeRecord {
 	@JoinColumn(name = "empId")
 	private Employee employeeId;
 	
-
-	@Enumerated(EnumType.STRING)
-	@Column(columnDefinition = "VARCHAR(50)")
-	private ClockEvent clockEvent;
+	@Column
+	private Time clockIn;
 	
 	@Column
-	private Time clockTime;
+	private Time clockOut;
 	
-	@Column
-	private Integer overtimeHours;
-	
-	@Enumerated(EnumType.STRING)
-	@Column(columnDefinition = "VARCHAR(50)")
-	private LateArrivalStatus lateArrival;
-
-	@Enumerated(EnumType.STRING)
-	@Column(columnDefinition = "VARCHAR(50)")
-	private Status status;
-
 	@Column
 	private Date attendanceDate;
 
@@ -57,15 +44,12 @@ public class TimeRecord {
 		super();
 	}
 
-	public TimeRecord(Integer id, Employee employeeId, ClockEvent clockEvent, Time clockTime, Integer overtimeHours, LateArrivalStatus lateArrival, Status status, Date attendanceDate) {
+	public TimeRecord(Integer id, Employee employeeId, Time clockIn, Time clockOut, Date attendanceDate) {
 		super();
 		this.id = id;
 		this.employeeId = employeeId;
-		this.clockEvent = clockEvent;
-		this.clockTime = clockTime;
-		this.overtimeHours = overtimeHours;
-		this.lateArrival = lateArrival;
-		this.status = status;
+		this.clockIn = clockIn;
+		this.clockOut = clockOut;
 		this.attendanceDate = attendanceDate;
 	}
 
@@ -85,44 +69,20 @@ public class TimeRecord {
 		this.employeeId = employeeId;
 	}
 
-	public ClockEvent getClockEvent() {
-		return clockEvent;
+	public Time getClockIn() {
+		return clockIn;
 	}
 
-	public void setClockEvent(ClockEvent clockEvent) {
-		this.clockEvent = clockEvent;
+	public void setClockIn(Time clockIn) {
+		this.clockIn = clockIn;
 	}
 
-	public Time getClockTime() {
-		return clockTime;
+	public Time getClockOut() {
+		return clockOut;
 	}
 
-	public void setClockTime(Time clockTime) {
-		this.clockTime = clockTime;
-	}
-
-	public Integer getOvertimeHours() {
-		return overtimeHours;
-	}
-
-	public void setOvertimeHours(Integer overtimeHours) {
-		this.overtimeHours = overtimeHours;
-	}
-
-	public LateArrivalStatus isLateArrival() {
-		return lateArrival;
-	}
-
-	public void setLateArrival(LateArrivalStatus lateArrival) {
-		this.lateArrival = lateArrival;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
+	public void setClockOut(Time clockOut) {
+		this.clockOut = clockOut;
 	}
 
 	public Date getAttendanceDate() {
@@ -132,4 +92,6 @@ public class TimeRecord {
 	public void setAttendanceDate(Date attendanceDate) {
 		this.attendanceDate = attendanceDate;
 	}
+
+	
 }
