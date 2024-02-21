@@ -84,19 +84,31 @@ public class TimeRecordService {
 
         TimeShift timeShift = employee.getTimeShift();
 
-        Integer hours = 0;
+        Integer shift_hours = 0;
+        Integer actual_hours = 0;
 
         Time t1 = timeShift.getShiftOut();
-        Time t2 = timeRecord.getClockOut();
+        Time t2 = timeShift.getShiftIn();
+        Time t3 = timeRecord.getClockOut();
+        Time t4 = timeRecord.getClockIn();
 
-        int comparisonResult = t1.compareTo(t2);
+        System.out.println(t1);
+        System.out.println(t2);
+        System.out.println(t3);
+        System.out.println(t4);
 
-        if (comparisonResult < 0) { // calculating overtime hours
-            long milliseconds = t2.getTime() - t1.getTime();
-            hours = (int) milliseconds / (1000 * 60 * 60);
 
-        }
-        return hours;  //set overtime hours in attendance
+        long shift_milliseconds = Math.abs(t1.getTime() - t2.getTime());
+        shift_hours = (int) shift_milliseconds / (1000 * 60 * 60);
+
+        System.out.println(shift_hours);
+
+        long actual_milliseconds = Math.abs(t3.getTime() - t4.getTime());
+        actual_hours = (int) actual_milliseconds / (1000 * 60 * 60);
+        System.out.println(actual_hours);
+
+       if(actual_hours>shift_hours) return actual_hours-shift_hours;
+       else return 0;
     }
 
     public Boolean checkStatus(TimeRecord timeRecord) {
@@ -113,12 +125,8 @@ public class TimeRecordService {
 
         Time t2 = timeRecord.getClockIn();
 
-        int comparisonResult = t1.compareTo(t2);
+        return t1.compareTo(t2)<0;
 
-        if (comparisonResult >= 0) {
-            return true;
-        } else {
-            return false;
-        }
+
     }
 }

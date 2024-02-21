@@ -1,5 +1,6 @@
 package com.adp.timeattendance.service;
 
+import com.adp.timeattendance.model.Attendance;
 import com.adp.timeattendance.model.Employee;
 import com.adp.timeattendance.model.TimeRecord;
 import com.adp.timeattendance.repository.AttendanceRepository;
@@ -48,14 +49,18 @@ public class EmployeeService {
         return temp;
     }
 
-    public Employee delete(Integer id) {     // Deletion should happen in such a way that it removes inconsistency in db
+    public Employee delete(Integer id) {  //Deleting employee_id means deleting record of that employee from attendance and timeRecord table
         Employee employee = read(id);
-        if(employee!=null)
-        {
-            employeeRepository.delete(employee);
+        if(employee!=null){
+            attendanceRepository.deleteAll(attendanceRepository.findByEmployeeId(employee));   //Delete all records in attendance table
+            timeRecordRepository.deleteAll(timeRecordRepository.findByEmployeeId(employee));   // Delete all records in timeRecord table
 
+            employeeRepository.delete(employee);
         }
         return employee;
+
+
+
     }
 
 
