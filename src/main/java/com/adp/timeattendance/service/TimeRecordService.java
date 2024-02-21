@@ -11,11 +11,13 @@ import com.adp.timeattendance.repository.AttendanceRepository;
 import com.adp.timeattendance.repository.TimeRecordRepository;
 
 
-import jakarta.persistence.PostPersist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Time;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -98,12 +100,18 @@ public class TimeRecordService {
         System.out.println(t4);
 
 
-        long shift_milliseconds = Math.abs(t1.getTime() - t2.getTime());
+        long shift_milliseconds = (24*60*60*1000) - Math.abs(t1.getTime() - t2.getTime());
         shift_hours = (int) shift_milliseconds / (1000 * 60 * 60);
 
         System.out.println(shift_hours);
 
-        long actual_milliseconds = Math.abs(t3.getTime() - t4.getTime());
+        long actual_milliseconds;
+        if(t3.after(t4)){
+            actual_milliseconds = Math.abs(t3.getTime()- t4.getTime());
+        }
+        else {
+            actual_milliseconds = (24*60*60*1000) - Math.abs(t3.getTime()-t4.getTime());
+        }
         actual_hours = (int) actual_milliseconds / (1000 * 60 * 60);
         System.out.println(actual_hours);
 
