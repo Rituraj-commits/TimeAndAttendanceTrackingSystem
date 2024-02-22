@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.sql.Date;
 import java.util.List;
 
@@ -69,18 +71,35 @@ public class TimeRecordController {
     }
 
     @GetMapping("/report")
-    public ResponseEntity<List<AttendanceReport>> generateReport(@RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fromDate,
-                                                                 @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date toDate) {
-        List<AttendanceReport> result = timeRecordService.generateAttendanceReport(fromDate, toDate);
+    public ResponseEntity<List<AttendanceReport>> generateReport(@RequestParam("from") String fromDate,
+    		@RequestParam("to")  String toDate) throws ParseException {
+        
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        java.util.Date utilFromDate = sdf.parse(fromDate);
+        java.util.Date utilToDate = sdf.parse(toDate);
+        
+        java.sql.Date sqlFromDate = new java.sql.Date(utilFromDate.getTime());
+        java.sql.Date sqlToDate = new java.sql.Date(utilToDate.getTime());
+        
+    	List<AttendanceReport> result = timeRecordService.generateAttendanceReport(sqlFromDate, sqlToDate);
         if (result != null) return ResponseEntity.ok(result);
         return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/report/{id}")
     public ResponseEntity<AttendanceReport> generateReportById(@PathVariable("id") Integer id,
-                                                               @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fromDate,
-                                                               @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date toDate) {
-        AttendanceReport result = timeRecordService.generateAttendanceReportById(id, fromDate, toDate);
+    		@RequestParam("from") String fromDate,
+    		@RequestParam("to")  String toDate) throws ParseException {
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        java.util.Date utilFromDate = sdf.parse(fromDate);
+        java.util.Date utilToDate = sdf.parse(toDate);
+        
+        java.sql.Date sqlFromDate = new java.sql.Date(utilFromDate.getTime());
+        java.sql.Date sqlToDate = new java.sql.Date(utilToDate.getTime());
+        
+    	AttendanceReport result = timeRecordService.generateAttendanceReportById(id, sqlFromDate, sqlToDate);
         if (result != null) return ResponseEntity.ok(result);
         return ResponseEntity.notFound().build();
     }
