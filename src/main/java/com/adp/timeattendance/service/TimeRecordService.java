@@ -4,6 +4,7 @@ import com.adp.timeattendance.enums.ClockEvent;
 import com.adp.timeattendance.enums.LateArrivalStatus;
 import com.adp.timeattendance.enums.Status;
 import com.adp.timeattendance.model.Attendance;
+import com.adp.timeattendance.model.AttendanceReport;
 import com.adp.timeattendance.model.Employee;
 import com.adp.timeattendance.model.TimeRecord;
 import com.adp.timeattendance.model.TimeShift;
@@ -15,9 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Time;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -57,14 +61,15 @@ public class TimeRecordService {
         return timeRecordRepository.save(timeRecord);
     }
 
-    public List<TimeRecord> generateAttendanceReport() {
-        return timeRecordRepository.getAttendanceDetails();
-    }
-
     public List<TimeRecord> getAllTimeRecords()  { return timeRecordRepository.findAll(); }
 
-    public TimeRecord generateAttendanceReportById(Integer id) {
-        return timeRecordRepository.getAttendanceDetailsById(id);
+    public List<AttendanceReport> generateAttendanceReport(Date fromDate, Date toDate) {
+        return timeRecordRepository.findAttendanceReport(fromDate, toDate);
+    }
+
+
+    public AttendanceReport generateAttendanceReportById(Integer id, Date fromDate, Date toDate) {
+        return timeRecordRepository.findAttendanceReportById(id, fromDate, toDate);
     }
 
     public List<TimeRecord> deleteTimeRecordById(Integer id){

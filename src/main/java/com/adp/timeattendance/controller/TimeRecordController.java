@@ -1,12 +1,16 @@
 package com.adp.timeattendance.controller;
 
+import com.adp.timeattendance.model.AttendanceReport;
 import com.adp.timeattendance.model.Employee;
 import com.adp.timeattendance.model.TimeRecord;
 import com.adp.timeattendance.service.TimeRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -36,13 +40,20 @@ public class TimeRecordController {
     }
 
     @GetMapping("/report")
-    public ResponseEntity<List<TimeRecord>> generateReport() {
-        return ResponseEntity.ok(timeRecordService.generateAttendanceReport());
+    public ResponseEntity<List<AttendanceReport>> generateReport(@RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fromDate,
+            @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date toDate) {
+    	List<AttendanceReport> result = timeRecordService.generateAttendanceReport(fromDate, toDate);
+    	if(result != null) return ResponseEntity.ok(result);
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/report/{id}")
-    public ResponseEntity<TimeRecord> generateReportById(@PathVariable Integer id){
-        return ResponseEntity.ok(timeRecordService.generateAttendanceReportById(id));
+    public ResponseEntity<AttendanceReport> generateReportById(@PathVariable("id") Integer id,
+    		@RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fromDate,
+            @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date toDate){
+        AttendanceReport result = timeRecordService.generateAttendanceReportById(id, fromDate, toDate);
+        if(result != null) return ResponseEntity.ok(result);
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
