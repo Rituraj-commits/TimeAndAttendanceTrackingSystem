@@ -20,7 +20,8 @@ public class AttendanceController {
     @GetMapping
     public ResponseEntity<List<Attendance>> retrieveAllAttendance(){
         List<Attendance> attendances = attendanceService.getAllAttendance();
-        return ResponseEntity.ok(attendances);
+        if(attendances!=null) return ResponseEntity.ok(attendances);
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{id}")

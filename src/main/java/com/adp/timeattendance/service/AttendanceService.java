@@ -1,6 +1,7 @@
 package com.adp.timeattendance.service;
 
 
+import java.util.Date;
 import java.util.List;
 
 import com.adp.timeattendance.model.Employee;
@@ -25,6 +26,7 @@ public class AttendanceService {
     }
 
     public List<Attendance> getAttendanceById(Integer id) {
+        System.out.println(id);
         Employee employee = employeeService.read(id);
         if(employee!=null){
             return attendanceRepository.findByEmployeeId(employee);
@@ -32,6 +34,18 @@ public class AttendanceService {
         }
         return null;
     }
+
+    public Attendance getAttendanceByIdAndDate(Integer id, Date date){
+        List<Attendance> attendanceList = getAttendanceById(id);    // Returning wrong
+        System.out.println(id);
+        for(Attendance attendance:attendanceList){
+            if(attendance.getAttendanceDate().equals(date)) return attendance;
+        }
+
+        return null;
+    }
+
+
 
 
 }

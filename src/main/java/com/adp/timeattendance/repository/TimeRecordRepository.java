@@ -51,16 +51,6 @@ public interface TimeRecordRepository extends JpaRepository<TimeRecord, Integer>
     }
 
 
-//    @Query(value = """
-//            SELECT e.ID, e.NAME, 
-//            COUNT(case WHEN a.LATEARRIVAL = 'LATE' THEN 1 ELSE NULL END) AS LATEARRIVALS,
-//            SUM(a.OVERTIMEHOURS) AS TOTALOVERTIMEHOURS,
-//            COUNT(CASE WHEN a.STATUS = 'ABSENT' THEN 1 ELSE NULL END) AS TOTALABSENTS,
-//            COUNT(CASE WHEN a.STATUS = 'PRESENT' THEN 1 ELSE NULL END) AS TOTALPRESENTS
-//            FROM Employee_G5_Jan16 e LEFT JOIN Attendance_G5_Jan16 a ON e.ID = a.EMPID
-//            WHERE e.ID = :id AND
-//             a.ATTENDANCEDATE BETWEEN TO_DATE('2024-02-01', 'YYYY-MM-DD') AND
-//            TO_DATE('2024-03-01', 'YYYY-MM-DD') GROUP BY e.ID, e.NAME""", nativeQuery = true)
     
     @Query(value = """
             SELECT e.ID, e.NAME, 

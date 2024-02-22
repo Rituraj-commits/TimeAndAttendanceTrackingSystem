@@ -13,6 +13,7 @@ import com.adp.timeattendance.repository.TimeRecordRepository;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.Time;
@@ -21,7 +22,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
 @Service
@@ -39,6 +40,9 @@ public class TimeRecordService {
     @Autowired
     private AttendanceRepository attendanceRepository;
 
+    @Autowired
+    private AttendanceService attendanceService;
+
     public List<TimeRecord> getTimeRecordByEmployeeId(Integer employeeId) { // get employee attendance report by id
 
         Employee employee = employeeService.read(employeeId);
@@ -50,18 +54,45 @@ public class TimeRecordService {
     }
 
 
-    public TimeRecord createTimeRecord(TimeRecord timeRecord) {
-		Attendance attendance = new Attendance();
-		attendance.setOvertimeHours(calculateOvertimeHours(timeRecord));
-		attendance.setLateArrival((checkLateArrival(timeRecord))?LateArrivalStatus.LATE:LateArrivalStatus.NOT_LATE);
-		attendance.setStatus((checkStatus(timeRecord))?Status.PRESENT:Status.ABSENT);
-		attendance.setEmployeeId(timeRecord.getEmployeeId());
+    public TimeRecord createTimeRecord(Employee employee,Time clockIn,Time clockOut,Date attendanceDate) {
+
+        TimeRecord timeRecord = new TimeRecord(employee,clockIn,clockOut,attendanceDate);
+        Attendance attendance = new Attendance();
+        attendance.setOvertimeHours(calculateOvertimeHours(timeRecord));
+        attendance.setLateArrival((checkLateArrival(timeRecord)) ? LateArrivalStatus.LATE : LateArrivalStatus.NOT_LATE);
+        attendance.setStatus((checkStatus(timeRecord)) ? Status.PRESENT : Status.ABSENT);
+        attendance.setEmployeeId(timeRecord.getEmployeeId());
         attendance.setAttendanceDate(timeRecord.getAttendanceDate());
         attendanceRepository.save(attendance);
         return timeRecordRepository.save(timeRecord);
     }
 
-    public List<TimeRecord> getAllTimeRecords()  { return timeRecordRepository.findAll(); }
+    public TimeRecord udpateTimeRecord(Employee employee,Time clockIn,Time clockOut,Date attendanceDate) {
+
+        List<TimeRecord> recordList = getTimeRecordByEmployeeId(employee.getId());
+        Attendance attendance = new Attendance();
+        for (TimeRecord record : recordList) {
+            if (record.getEmployeeId().equals(employee) && record.getAttendanceDate().equals(attendanceDate)) {    // If employee id is present in that particular date
+
+                Integer overtimeHours = calculateOvertimeHours(record);
+                attendance = attendanceService.getAttendanceByIdAndDate(record.getEmployeeId().getId(),record.getAttendanceDate());   //fixed here
+                attendance.setOvertimeHours(overtimeHours);
+                record.setClockOut(clockOut);
+                attendanceRepository.save(attendance);
+                return timeRecordRepository.save(record);
+
+            }
+        }
+        return null;
+
+
+
+
+    }
+
+    public List<TimeRecord> getAllTimeRecords() {
+        return timeRecordRepository.findAll();
+    }
 
     public List<AttendanceReport> generateAttendanceReport(Date fromDate, Date toDate) {
         return timeRecordRepository.findAttendanceReport(fromDate, toDate);
@@ -72,20 +103,19 @@ public class TimeRecordService {
         return timeRecordRepository.findAttendanceReportById(id, fromDate, toDate);
     }
 
-    public List<TimeRecord> deleteTimeRecordById(Integer id){
+    public List<TimeRecord> deleteTimeRecordById(Integer id) {
         Employee employee = employeeService.read(id);
         List<TimeRecord> temp = timeRecordRepository.findByEmployeeId(employee);
-        if(temp!=null)
-        {
+        if (temp != null) {
             timeRecordRepository.deleteAllInBatch(temp);
         }
         return temp;
     }
 
 
-
-
     public Integer calculateOvertimeHours(TimeRecord timeRecord) {
+
+        if (timeRecord.getClockIn() == null || timeRecord.getClockOut() == null) return 0;
 
         Employee employee = timeRecord.getEmployeeId();
 
@@ -94,10 +124,12 @@ public class TimeRecordService {
         Integer shift_hours = 0;
         Integer actual_hours = 0;
 
+
         Time t1 = timeShift.getShiftOut();
         Time t2 = timeShift.getShiftIn();
         Time t3 = timeRecord.getClockOut();
         Time t4 = timeRecord.getClockIn();
+
 
         System.out.println(t1);
         System.out.println(t2);
@@ -105,23 +137,22 @@ public class TimeRecordService {
         System.out.println(t4);
 
 
-        long shift_milliseconds = (24*60*60*1000) - Math.abs(t1.getTime() - t2.getTime());
+        long shift_milliseconds = (24 * 60 * 60 * 1000) - Math.abs(t1.getTime() - t2.getTime());
         shift_hours = (int) shift_milliseconds / (1000 * 60 * 60);
 
         System.out.println(shift_hours);
 
         long actual_milliseconds;
-        if(t3.after(t4)){
-            actual_milliseconds = Math.abs(t3.getTime()- t4.getTime());
-        }
-        else {
-            actual_milliseconds = (24*60*60*1000) - Math.abs(t3.getTime()-t4.getTime());
+        if (t3.after(t4)) {
+            actual_milliseconds = Math.abs(t3.getTime() - t4.getTime());
+        } else {
+            actual_milliseconds = (24 * 60 * 60 * 1000) - Math.abs(t3.getTime() - t4.getTime());
         }
         actual_hours = (int) actual_milliseconds / (1000 * 60 * 60);
         System.out.println(actual_hours);
 
-       if(actual_hours>shift_hours) return actual_hours-shift_hours;
-       else return 0;
+        if (actual_hours > shift_hours) return actual_hours - shift_hours;
+        else return 0;
     }
 
     public Boolean checkStatus(TimeRecord timeRecord) {
@@ -129,6 +160,8 @@ public class TimeRecordService {
     }
 
     public Boolean checkLateArrival(TimeRecord timeRecord) {
+
+        if (timeRecord.getClockIn() == null) return false;
 
         Employee employee = timeRecord.getEmployeeId();
 
@@ -138,8 +171,17 @@ public class TimeRecordService {
 
         Time t2 = timeRecord.getClockIn();
 
-        return t1.compareTo(t2)<0;
+
+        return t1.compareTo(t2) < 0;
 
 
     }
+
+//    public TimeRecord createTimeRecordByForm(Integer employeeId, Time clockIn, Time clockOut, Date attendanceDate)
+//    {
+//        Employee employee = employeeService.read(employeeId);
+//
+//
+//    }
+//}
 }

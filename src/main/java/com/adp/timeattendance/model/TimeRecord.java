@@ -44,9 +44,9 @@ public class TimeRecord {
 		super();
 	}
 
-	public TimeRecord(Integer id, Employee employeeId, Time clockIn, Time clockOut, Date attendanceDate) {
+	public TimeRecord(Employee employeeId, Time clockIn, Time clockOut, Date attendanceDate) {
 		super();
-		this.id = id;
+//		this.id = id;
 		this.employeeId = employeeId;
 		this.clockIn = clockIn;
 		this.clockOut = clockOut;

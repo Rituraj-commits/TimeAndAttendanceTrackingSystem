@@ -6,6 +6,8 @@ import com.adp.timeattendance.enums.JobTitle;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name="Employee_G5_Jan16")
 public class Employee {
@@ -19,6 +21,11 @@ public class Employee {
 	@JoinColumn(name="ShiftId")
 	private TimeShift timeShift;
 
+	@OneToMany(mappedBy = "employeeId", cascade = CascadeType.ALL)
+	private List<TimeRecord> timeRecords;
+
+	@OneToMany(mappedBy = "employeeId",cascade = CascadeType.ALL)
+	private List<Attendance> attendances;
 
 	@Column(nullable = false)
 	private String name;
