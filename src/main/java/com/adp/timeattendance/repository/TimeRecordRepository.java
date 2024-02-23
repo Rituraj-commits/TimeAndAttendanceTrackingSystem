@@ -15,6 +15,8 @@ import java.util.List;
 
 public interface TimeRecordRepository extends JpaRepository<TimeRecord, Integer> {
     List<TimeRecord> findByEmployeeId(Employee employeeId);
+    
+//    List<TimeRecord> findByEmployeeIdAndDate(Employee employeeId, Date attendanceDate);
 
     @Query(value = """
             SELECT e.ID, e.NAME, 

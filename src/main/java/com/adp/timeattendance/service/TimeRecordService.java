@@ -85,10 +85,43 @@ public class TimeRecordService {
         }
         return null;
 
-
-
-
     }
+    
+    public TimeRecord getTimeRecordByEmpIdAndDate(Integer employeeId, Date attendanceDate)
+    {
+    	Employee employee = employeeService.read(employeeId);
+    	List<TimeRecord> recordsList = timeRecordRepository.findByEmployeeId(employee);
+    	
+    	if(recordsList != null)
+    	{
+    		for(TimeRecord record: recordsList)
+    		{
+    			if(record.getAttendanceDate().equals(attendanceDate))
+    			{
+    				return record;
+    			}
+    		}
+    	}
+    	
+    	return null;
+    	
+    	
+    }
+    
+    public TimeRecord createTimeRecord2(Employee employee, Time clockTime, Date attendanceDate)
+	{
+		TimeRecord timeRecord = new TimeRecord(employee, clockTime, null, attendanceDate);
+		
+		Attendance attendance = new Attendance();
+        attendance.setOvertimeHours(calculateOvertimeHours(timeRecord));
+        attendance.setLateArrival((checkLateArrival(timeRecord)) ? LateArrivalStatus.LATE : LateArrivalStatus.NOT_LATE);
+        attendance.setStatus((checkStatus(timeRecord)) ? Status.PRESENT : Status.ABSENT);
+        attendance.setEmployeeId(timeRecord.getEmployeeId());
+        attendance.setAttendanceDate(timeRecord.getAttendanceDate());
+        attendanceRepository.save(attendance);
+        return timeRecordRepository.save(timeRecord);
+		
+	}
 
     public List<TimeRecord> getAllTimeRecords() {
         return timeRecordRepository.findAll();

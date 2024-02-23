@@ -77,6 +77,7 @@ public class TimeRecord {
 		this.clockIn = clockIn;
 	}
 
+
 	public Time getClockOut() {
 		return clockOut;
 	}
@@ -92,6 +93,13 @@ public class TimeRecord {
 	public void setAttendanceDate(Date attendanceDate) {
 		this.attendanceDate = attendanceDate;
 	}
+	
+	@Override
+	public String toString() {
+		return "TimeRecord [id=" + id + ", employeeId=" + employeeId + ", clockIn=" + clockIn + ", clockOut=" + clockOut
+				+ ", attendanceDate=" + attendanceDate + "]";
+	}
+
 
 	
 }

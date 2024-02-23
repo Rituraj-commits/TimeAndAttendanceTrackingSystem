@@ -3,9 +3,14 @@ package com.adp.timeattendance.controller;
 import com.adp.timeattendance.model.AttendanceReport;
 import com.adp.timeattendance.model.Employee;
 import com.adp.timeattendance.model.TimeRecord;
+import com.adp.timeattendance.model.TimeRecordReq;
 import com.adp.timeattendance.model.TimeRecordRequest;
+import com.adp.timeattendance.repository.TimeRecordRepository;
 import com.adp.timeattendance.service.EmployeeService;
 import com.adp.timeattendance.service.TimeRecordService;
+
+import ch.qos.logback.core.joran.conditional.IfAction;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -27,15 +32,18 @@ public class TimeRecordController {
 
     @Autowired
     EmployeeService employeeService;
+    
+    @Autowired
+    TimeRecordRepository timeRecordRepository;
 
-    @PostMapping
-    public ResponseEntity<TimeRecord> addTimeRecord(@RequestBody TimeRecordRequest timeRecordRequest) {
-
-        Employee employee = employeeService.read(timeRecordRequest.getEmployeeId());
-
-
-        return ResponseEntity.ok(timeRecordService.createTimeRecord(employee, timeRecordRequest.getClockIn(), timeRecordRequest.getClockOut(), timeRecordRequest.getAttendanceDate()));
-    }
+//    @PostMapping
+//    public ResponseEntity<TimeRecord> addTimeRecord(@RequestBody TimeRecordRequest timeRecordRequest) {
+//
+//        Employee employee = employeeService.read(timeRecordRequest.getEmployeeId());
+//
+//
+//        return ResponseEntity.ok(timeRecordService.createTimeRecord(employee, timeRecordRequest.getClockIn(), timeRecordRequest.getClockOut(), timeRecordRequest.getAttendanceDate()));
+//    }
 
     @PutMapping
     public ResponseEntity<TimeRecord> updateTimeRecord(@RequestBody TimeRecordRequest timeRecordRequest) {
@@ -55,6 +63,38 @@ public class TimeRecordController {
 
         return ResponseEntity.ok(timeRecordService.udpateTimeRecord(employee, timeRecordRequest.getClockIn(), timeRecordRequest.getClockOut(), timeRecordRequest.getAttendanceDate()));
 
+    }
+    
+    @PostMapping
+    public ResponseEntity<TimeRecord> addTimeRecord2(@RequestBody TimeRecordReq timeRecordReq) {
+
+    	
+        Employee employee = employeeService.read(timeRecordReq.getEmployeeId());
+        Date attendanceDate = timeRecordReq.getAttendanceDate();
+        
+        TimeRecord timeRecord = timeRecordService.getTimeRecordByEmpIdAndDate(timeRecordReq.getEmployeeId(), attendanceDate);
+        
+        if(timeRecord != null)
+        {
+        	
+        	if(timeRecord.getClockOut() == null) {
+        		
+        		timeRecord.setClockOut(timeRecordReq.getClockTime());
+        	}
+        	else {
+        		System.out.println("i am running");
+        		timeRecord.setClockOut(null);
+        		
+        	}
+        	timeRecordRepository.save(timeRecord);
+        	return ResponseEntity.ok(timeRecord);
+        	
+        }
+        else {
+        	return ResponseEntity.ok(timeRecordService.createTimeRecord2(employee, timeRecordReq.getClockTime(), timeRecordReq.getAttendanceDate()));
+        }
+        
+        
     }
 
 
