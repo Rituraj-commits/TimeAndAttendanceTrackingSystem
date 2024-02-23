@@ -2,6 +2,7 @@ package com.adp.timeattendance.controller;
 
 import com.adp.timeattendance.model.AttendanceReport;
 import com.adp.timeattendance.model.Employee;
+import com.adp.timeattendance.model.PayrollResponse;
 import com.adp.timeattendance.model.TimeRecord;
 import com.adp.timeattendance.model.TimeRecordReq;
 import com.adp.timeattendance.model.TimeRecordRequest;
@@ -109,9 +110,12 @@ public class TimeRecordController {
 		return ResponseEntity.ok(recordList);
 	}
 
-	@GetMapping("/payroll/{id}")
-	public ResponseEntity<Double> generatePayroll(@PathVariable Integer id,@RequestBody String month) throws IOException {
-		return ResponseEntity.ok(timeRecordService.calculatePayroll(id,month));
+	@GetMapping("/payroll/{id}/{month}")
+	public ResponseEntity<PayrollResponse> generatePayroll(@PathVariable("id") Integer id, @PathVariable("month") String month) throws IOException {
+		
+		PayrollResponse payrollResponse = timeRecordService.calculatePayroll(id,month);
+		return ResponseEntity.ok(payrollResponse);
+
 	}
 
 	@GetMapping("/report")

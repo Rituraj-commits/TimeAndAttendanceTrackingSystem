@@ -18,8 +18,7 @@ import java.io.IOException;
 import java.sql.Time;
 
 import java.util.Date;
-
-
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -193,6 +192,7 @@ public class TimeRecordService {
 		System.out.println(t4);
 
 		long shift_milliseconds;
+		
 		if(employee.getTimeShift().getId()==2){
 			shift_milliseconds = (24 * 60 * 60 * 1000) - Math.abs(t1.getTime() - t2.getTime());
 		}
@@ -242,14 +242,16 @@ public class TimeRecordService {
 
 	}
 
-	public Double calculatePayroll(Integer id,String month) throws IOException {
+	public PayrollResponse calculatePayroll(Integer id,String month) throws IOException {
 		ObjectMapper objectMapper = new ObjectMapper();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Double perDayPay = 2248.0;
 		Double payPerHour = perDayPay/9.0;
 		Double payroll = 0.0;
-		JSONObject jsonObject = new JSONObject(month);
-		String new_month = jsonObject.getString("month");
+//		JSONObject jsonObject = new JSONObject(month);
+//		String new_month = jsonObject.getString("month");
+		
+		String new_month = month;
 		MonthDate[] monthDates = objectMapper.readValue(new File("src/main/java/com/adp/timeattendance/months.json"),MonthDate[].class);
 		for(MonthDate months:monthDates){
 			System.out.println(months.getName());
@@ -272,15 +274,29 @@ public class TimeRecordService {
 				} catch (ParseException e) {
 					throw new RuntimeException(e);
 				}
+				
+//				DecimalFormat df = new DecimalFormat("#.##");
+//				df.setMinimumFractionDigits(1);
+//				df.setMaximumFractionDigits(2);
 
 				AttendanceReport attendanceReport = timeRecordRepository.findAttendanceReportById(id,startDate,endDate);
+				Integer overtimeHours = (Integer) attendanceReport.getTotalOvertimeHours().intValue();
+				Integer presentDays = (Integer) attendanceReport.getTotalPresents().intValue();
+				Double regularPay = presentDays.doubleValue()*perDayPay;
+				regularPay = Math.round(regularPay* 10.0)/10.0;
+				Double overtimePay = overtimeHours.doubleValue()*payPerHour;
+				overtimePay = Math.round(overtimePay* 10.0)/10.0;
+				
 				System.out.println(attendanceReport.getTotalOvertimeHours().doubleValue());
 				System.out.println(attendanceReport.getTotalPresents().doubleValue());
 				payroll = attendanceReport.getTotalOvertimeHours().doubleValue()*payPerHour + attendanceReport.getTotalPresents().doubleValue()*perDayPay;
-				return payroll;
+				payroll = Math.round(payroll* 10.0)/10.0;
+				
+				PayrollResponse payrollResponse = new PayrollResponse(payroll, overtimeHours, presentDays, regularPay, overtimePay);
+				return payrollResponse;
 			}
 		}
-		return payroll;
+		return null;
 
 	}
 
