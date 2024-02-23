@@ -192,8 +192,17 @@ public class TimeRecordService {
 		System.out.println(t3);
 		System.out.println(t4);
 
-//		long shift_milliseconds = (24 * 60 * 60 * 1000) - Math.abs(t1.getTime() - t2.getTime());  // fix here
-//		shift_hours = (int) shift_milliseconds / (1000 * 60 * 60);
+		long shift_milliseconds;
+		if(employee.getTimeShift().getId()==2){
+			shift_milliseconds = (24 * 60 * 60 * 1000) - Math.abs(t1.getTime() - t2.getTime());
+		}
+		else {
+			shift_milliseconds = Math.abs(t1.getTime() - t2.getTime());
+		}
+		shift_hours = (int) shift_milliseconds / (1000 * 60 * 60);
+
+
+
 
 		System.out.println(shift_hours);
 
