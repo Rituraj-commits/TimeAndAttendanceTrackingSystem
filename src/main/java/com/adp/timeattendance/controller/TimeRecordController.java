@@ -27,14 +27,14 @@ import java.util.List;
 @RequestMapping("/timerecord")
 public class TimeRecordController {
 
-    @Autowired
-    TimeRecordService timeRecordService;
+	@Autowired
+	TimeRecordService timeRecordService;
 
-    @Autowired
-    EmployeeService employeeService;
-    
-    @Autowired
-    TimeRecordRepository timeRecordRepository;
+	@Autowired
+	EmployeeService employeeService;
+
+	@Autowired
+	TimeRecordRepository timeRecordRepository;
 
 //    @PostMapping
 //    public ResponseEntity<TimeRecord> addTimeRecord(@RequestBody TimeRecordRequest timeRecordRequest) {
@@ -45,111 +45,110 @@ public class TimeRecordController {
 //        return ResponseEntity.ok(timeRecordService.createTimeRecord(employee, timeRecordRequest.getClockIn(), timeRecordRequest.getClockOut(), timeRecordRequest.getAttendanceDate()));
 //    }
 
-    @PutMapping
-    public ResponseEntity<TimeRecord> updateTimeRecord(@RequestBody TimeRecordRequest timeRecordRequest) {
-        Integer empId = timeRecordRequest.getEmployeeId();
-        Employee employee = employeeService.read(empId);
-        if (employee == null) return ResponseEntity.notFound().build();
-        Time clockInTime = timeRecordRequest.getClockIn();
+//    @PutMapping
+//    public ResponseEntity<TimeRecord> updateTimeRecord(@RequestBody TimeRecordRequest timeRecordRequest) {
+//        Integer empId = timeRecordRequest.getEmployeeId();
+//        Employee employee = employeeService.read(empId);
+//        if (employee == null) return ResponseEntity.notFound().build();
+//        Time clockInTime = timeRecordRequest.getClockIn();
+//
+//        List<TimeRecord> recordList = timeRecordService.getTimeRecordByEmployeeId(empId);
+//
+//        for (TimeRecord record : recordList) {
+//            if (record.getEmployeeId().equals(employee) && record.getAttendanceDate().equals(timeRecordRequest.getAttendanceDate())) {    // If employee id is present in that particular date
+//                return ResponseEntity.ok(timeRecordService.udpateTimeRecord(employee, record.getClockIn(), timeRecordRequest.getClockOut(), record.getAttendanceDate()));
+//            }
+//        }
+//
+//
+//        return ResponseEntity.ok(timeRecordService.udpateTimeRecord(employee, timeRecordRequest.getClockIn(), timeRecordRequest.getClockOut(), timeRecordRequest.getAttendanceDate()));
+//
+//    }
 
-        List<TimeRecord> recordList = timeRecordService.getTimeRecordByEmployeeId(empId);
+	@PostMapping
+	public ResponseEntity<TimeRecord> addTimeRecord(@RequestBody TimeRecordReq timeRecordReq) {
 
-        for (TimeRecord record : recordList) {
-            if (record.getEmployeeId().equals(employee) && record.getAttendanceDate().equals(timeRecordRequest.getAttendanceDate())) {    // If employee id is present in that particular date
-                return ResponseEntity.ok(timeRecordService.udpateTimeRecord(employee, record.getClockIn(), timeRecordRequest.getClockOut(), record.getAttendanceDate()));
-            }
-        }
+		Employee employee = employeeService.read(timeRecordReq.getEmployeeId());
+		Date attendanceDate = timeRecordReq.getAttendanceDate();
 
+		TimeRecord timeRecord = timeRecordService.getTimeRecordByEmpIdAndDate(timeRecordReq.getEmployeeId(),
+				attendanceDate);
 
-        return ResponseEntity.ok(timeRecordService.udpateTimeRecord(employee, timeRecordRequest.getClockIn(), timeRecordRequest.getClockOut(), timeRecordRequest.getAttendanceDate()));
+		if (timeRecord != null) {
 
-    }
-    
-    @PostMapping
-    public ResponseEntity<TimeRecord> addTimeRecord2(@RequestBody TimeRecordReq timeRecordReq) {
+			if (timeRecord.getClockOut() == null) {
 
-    	
-        Employee employee = employeeService.read(timeRecordReq.getEmployeeId());
-        Date attendanceDate = timeRecordReq.getAttendanceDate();
-        
-        TimeRecord timeRecord = timeRecordService.getTimeRecordByEmpIdAndDate(timeRecordReq.getEmployeeId(), attendanceDate);
-        
-        if(timeRecord != null)
-        {
-        	
-        	if(timeRecord.getClockOut() == null) {
-        		
-        		timeRecord.setClockOut(timeRecordReq.getClockTime());
-        	}
-        	else {
-        		System.out.println("i am running");
-        		timeRecord.setClockOut(null);
-        		
-        	}
-        	timeRecordRepository.save(timeRecord);
-        	return ResponseEntity.ok(timeRecord);
-        	
-        }
-        else {
-        	return ResponseEntity.ok(timeRecordService.createTimeRecord2(employee, timeRecordReq.getClockTime(), timeRecordReq.getAttendanceDate()));
-        }
-        
-        
-    }
+				timeRecord.setClockOut(timeRecordReq.getClockTime());
+			} else {
+				System.out.println("Setting ClockOut to null.");
+				timeRecord.setClockOut(null);
 
+			}
+					
+			timeRecordRepository.save(timeRecord);
+			timeRecordService.updateAttendance(timeRecord);
+			return ResponseEntity.ok(timeRecord);
 
-    @GetMapping
-    public ResponseEntity<List<TimeRecord>> generateRecords() {
-        List<TimeRecord> recordList = timeRecordService.getAllTimeRecords();
-        return ResponseEntity.ok(recordList);
-    }
+		} else {
+			return ResponseEntity.ok(timeRecordService.createTimeRecord(employee, timeRecordReq.getClockTime(),
+					timeRecordReq.getAttendanceDate()));
+		}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<List<TimeRecord>> generateRecordById(@PathVariable Integer id) {
-        List<TimeRecord> recordList = timeRecordService.getTimeRecordByEmployeeId(id);
-        return ResponseEntity.ok(recordList);
-    }
+	}
 
-    @GetMapping("/report")
-    public ResponseEntity<List<AttendanceReport>> generateReport(@RequestParam("from") String fromDate,
-    		@RequestParam("to")  String toDate) throws ParseException {
-        
-    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	@GetMapping
+	public ResponseEntity<List<TimeRecord>> generateRecords() {
+		List<TimeRecord> recordList = timeRecordService.getAllTimeRecords();
+		return ResponseEntity.ok(recordList);
+	}
 
-        java.util.Date utilFromDate = sdf.parse(fromDate);
-        java.util.Date utilToDate = sdf.parse(toDate);
-        
-        java.sql.Date sqlFromDate = new java.sql.Date(utilFromDate.getTime());
-        java.sql.Date sqlToDate = new java.sql.Date(utilToDate.getTime());
-        
-    	List<AttendanceReport> result = timeRecordService.generateAttendanceReport(sqlFromDate, sqlToDate);
-        if (result != null) return ResponseEntity.ok(result);
-        return ResponseEntity.notFound().build();
-    }
+	@GetMapping("/{id}")
+	public ResponseEntity<List<TimeRecord>> generateRecordById(@PathVariable Integer id) {
+		List<TimeRecord> recordList = timeRecordService.getTimeRecordByEmployeeId(id);
+		return ResponseEntity.ok(recordList);
+	}
 
-    @GetMapping("/report/{id}")
-    public ResponseEntity<AttendanceReport> generateReportById(@PathVariable("id") Integer id,
-    		@RequestParam("from") String fromDate,
-    		@RequestParam("to")  String toDate) throws ParseException {
-    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	@GetMapping("/report")
+	public ResponseEntity<List<AttendanceReport>> generateReport(@RequestParam("from") String fromDate,
+			@RequestParam("to") String toDate) throws ParseException {
 
-        java.util.Date utilFromDate = sdf.parse(fromDate);
-        java.util.Date utilToDate = sdf.parse(toDate);
-        
-        java.sql.Date sqlFromDate = new java.sql.Date(utilFromDate.getTime());
-        java.sql.Date sqlToDate = new java.sql.Date(utilToDate.getTime());
-        
-    	AttendanceReport result = timeRecordService.generateAttendanceReportById(id, sqlFromDate, sqlToDate);
-        if (result != null) return ResponseEntity.ok(result);
-        return ResponseEntity.notFound().build();
-    }
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<List<TimeRecord>> removeTimeRecord(@PathVariable Integer id) {
-        List<TimeRecord> deletedRecords = timeRecordService.deleteTimeRecordById(id);
-        if (deletedRecords != null) return ResponseEntity.ok(deletedRecords);
-        return ResponseEntity.notFound().build();
-    }
+		java.util.Date utilFromDate = sdf.parse(fromDate);
+		java.util.Date utilToDate = sdf.parse(toDate);
 
+		java.sql.Date sqlFromDate = new java.sql.Date(utilFromDate.getTime());
+		java.sql.Date sqlToDate = new java.sql.Date(utilToDate.getTime());
+
+		List<AttendanceReport> result = timeRecordService.generateAttendanceReport(sqlFromDate, sqlToDate);
+		if (result != null)
+			return ResponseEntity.ok(result);
+		return ResponseEntity.notFound().build();
+	}
+
+	@GetMapping("/report/{id}")
+	public ResponseEntity<AttendanceReport> generateReportById(@PathVariable("id") Integer id,
+			@RequestParam("from") String fromDate, @RequestParam("to") String toDate) throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+		java.util.Date utilFromDate = sdf.parse(fromDate);
+		java.util.Date utilToDate = sdf.parse(toDate);
+
+		java.sql.Date sqlFromDate = new java.sql.Date(utilFromDate.getTime());
+		java.sql.Date sqlToDate = new java.sql.Date(utilToDate.getTime());
+
+		AttendanceReport result = timeRecordService.generateAttendanceReportById(id, sqlFromDate, sqlToDate);
+		if (result != null)
+			return ResponseEntity.ok(result);
+		return ResponseEntity.notFound().build();
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<List<TimeRecord>> removeTimeRecord(@PathVariable Integer id) {
+		List<TimeRecord> deletedRecords = timeRecordService.deleteTimeRecordById(id);
+		if (deletedRecords != null)
+			return ResponseEntity.ok(deletedRecords);
+		return ResponseEntity.notFound().build();
+	}
 
 }

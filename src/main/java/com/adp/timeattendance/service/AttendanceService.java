@@ -37,6 +37,12 @@ public class AttendanceService {
 
     public Attendance getAttendanceByIdAndDate(Integer id, Date date){
         List<Attendance> attendanceList = getAttendanceById(id);    // Returning wrong
+        
+        if(attendanceList.equals(null))
+        {
+        	return null;
+        }
+        
         System.out.println(id);
         for(Attendance attendance:attendanceList){
             if(attendance.getAttendanceDate().equals(date)) return attendance;
