@@ -2,91 +2,75 @@ package com.adp.timeattendance.model;
 
 import java.math.BigDecimal;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
 
 public class AttendanceReport {
-	
-	private Integer id;
-	
-	private String name;
-	
-	private BigDecimal LateArrivals;
-	
-	private BigDecimal TotalOvertimeHours;
-	
-	private BigDecimal TotalAbsents;
-	
-	private BigDecimal TotalPresents;
 
-	public AttendanceReport() {
-		super();
-	}
+    private Integer id;
 
-	public AttendanceReport(Integer id, String name, BigDecimal lateArrivals, BigDecimal totalOvertimeHours,
-			BigDecimal totalAbsents, BigDecimal totalPresents) {
-		super();
-		this.id = id;
-		this.name = name;
-		LateArrivals = lateArrivals;
-		TotalOvertimeHours = totalOvertimeHours;
-		TotalAbsents = totalAbsents;
-		TotalPresents = totalPresents;
-	}
+    private String name;
 
-	public Integer getId() {
-		return id;
-	}
+    private BigDecimal lateArrivals;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    private BigDecimal totalOvertimeHours;
 
-	public String getName() {
-		return name;
-	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    private BigDecimal totalPresents;
 
-	public BigDecimal getLateArrivals() {
-		return LateArrivals;
-	}
+    public AttendanceReport() {
+        super();
+    }
 
-	public void setLateArrivals(BigDecimal lateArrivals) {
-		LateArrivals = lateArrivals;
-	}
+    public AttendanceReport(Integer id, String name, BigDecimal lateArrivals, BigDecimal totalOvertimeHours,
+                            BigDecimal totalPresents) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.lateArrivals = lateArrivals;
+        this.totalOvertimeHours = totalOvertimeHours;
 
-	public BigDecimal getTotalOvertimeHours() {
-		return TotalOvertimeHours;
-	}
+        this.totalPresents = totalPresents;
+    }
 
-	public void setTotalOvertimeHours(BigDecimal totalOvertimeHours) {
-		TotalOvertimeHours = totalOvertimeHours;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public BigDecimal getTotalAbsents() {
-		return TotalAbsents;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setTotalAbsents(BigDecimal totalAbsents) {
-		TotalAbsents = totalAbsents;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public BigDecimal getTotalPresents() {
-		return TotalPresents;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setTotalPresents(BigDecimal totalPresents) {
-		TotalPresents = totalPresents;
-	}
+    public BigDecimal getLateArrivals() {
+        return lateArrivals;
+    }
 
-	
-	
+    public void setLateArrivals(BigDecimal lateArrivals) {
+        this.lateArrivals = lateArrivals;
+    }
+
+    public BigDecimal getTotalOvertimeHours() {
+        return totalOvertimeHours;
+    }
+
+    public void setTotalOvertimeHours(BigDecimal totalOvertimeHours) {
+        this.totalOvertimeHours = totalOvertimeHours;
+    }
+
+
+    public BigDecimal getTotalPresents() {
+        return totalPresents;
+    }
+
+    public void setTotalPresents(BigDecimal totalPresents) {
+        this.totalPresents = totalPresents;
+    }
+
+
 }

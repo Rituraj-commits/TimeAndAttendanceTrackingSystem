@@ -3,26 +3,30 @@ package com.adp.timeattendance.service;
 import com.adp.timeattendance.enums.ClockEvent;
 import com.adp.timeattendance.enums.LateArrivalStatus;
 import com.adp.timeattendance.enums.Status;
-import com.adp.timeattendance.model.Attendance;
-import com.adp.timeattendance.model.AttendanceReport;
-import com.adp.timeattendance.model.Employee;
-import com.adp.timeattendance.model.TimeRecord;
-import com.adp.timeattendance.model.TimeShift;
+import com.adp.timeattendance.model.*;
 import com.adp.timeattendance.repository.AttendanceRepository;
 import com.adp.timeattendance.repository.TimeRecordRepository;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Time;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.sql.Date;
+
+import java.util.Date;
+
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import org.json.JSONObject;
 
 @Service
 public class TimeRecordService {
@@ -110,7 +114,7 @@ public class TimeRecordService {
 	}
 
 	public TimeRecord createTimeRecord(Employee employee, Time clockTime, Date attendanceDate) {
-		TimeRecord timeRecord = new TimeRecord(employee, clockTime, null, attendanceDate);
+		TimeRecord timeRecord = new TimeRecord(employee, clockTime, null, new java.sql.Date(attendanceDate.getTime()));   // date problem solved
 
 		Attendance attendance = new Attendance();
 
@@ -139,10 +143,9 @@ public class TimeRecordService {
 			attendance.setOvertimeHours(overtimeHours);
 		}
 		
-		attendanceRepository.save(attendance);
+		return attendanceRepository.save(attendance);
 		
-		return attendance;
-		
+
 		
 	}
 
@@ -176,7 +179,7 @@ public class TimeRecordService {
 
 		TimeShift timeShift = employee.getTimeShift();
 
-		Integer shift_hours = 0;
+		Integer shift_hours = 9;
 		Integer actual_hours = 0;
 
 		Time t1 = timeShift.getShiftOut();
@@ -189,8 +192,8 @@ public class TimeRecordService {
 		System.out.println(t3);
 		System.out.println(t4);
 
-		long shift_milliseconds = (24 * 60 * 60 * 1000) - Math.abs(t1.getTime() - t2.getTime());
-		shift_hours = (int) shift_milliseconds / (1000 * 60 * 60);
+//		long shift_milliseconds = (24 * 60 * 60 * 1000) - Math.abs(t1.getTime() - t2.getTime());  // fix here
+//		shift_hours = (int) shift_milliseconds / (1000 * 60 * 60);
 
 		System.out.println(shift_hours);
 
@@ -230,11 +233,47 @@ public class TimeRecordService {
 
 	}
 
-//    public TimeRecord createTimeRecordByForm(Integer employeeId, Time clockIn, Time clockOut, Date attendanceDate)
-//    {
-//        Employee employee = employeeService.read(employeeId);
-//
-//
-//    }
-//}
+	public Double calculatePayroll(Integer id,String month) throws IOException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Double perDayPay = 2248.0;
+		Double payPerHour = perDayPay/9.0;
+		Double payroll = 0.0;
+		JSONObject jsonObject = new JSONObject(month);
+		String new_month = jsonObject.getString("month");
+		MonthDate[] monthDates = objectMapper.readValue(new File("src/main/java/com/adp/timeattendance/months.json"),MonthDate[].class);
+		for(MonthDate months:monthDates){
+			System.out.println(months.getName());
+			if(months.getName().equals(new_month)){
+				Date startDate = null;
+				try {
+					System.out.println(months.getStartDate());
+					startDate =  dateFormat.parse(months.getStartDate());
+					System.out.println(startDate);
+
+
+				} catch (ParseException e) {
+					throw new RuntimeException(e);
+				}
+				Date endDate = null;
+				try {
+					System.out.println(months.getEndDate());
+					endDate = dateFormat.parse(months.getEndDate());
+
+				} catch (ParseException e) {
+					throw new RuntimeException(e);
+				}
+
+				AttendanceReport attendanceReport = timeRecordRepository.findAttendanceReportById(id,startDate,endDate);
+				System.out.println(attendanceReport.getTotalOvertimeHours().doubleValue());
+				System.out.println(attendanceReport.getTotalPresents().doubleValue());
+				payroll = attendanceReport.getTotalOvertimeHours().doubleValue()*payPerHour + attendanceReport.getTotalPresents().doubleValue()*perDayPay;
+				return payroll;
+			}
+		}
+		return payroll;
+
+	}
+
+
 }

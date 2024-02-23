@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,7 +22,6 @@ public interface TimeRecordRepository extends JpaRepository<TimeRecord, Integer>
             SELECT e.ID, e.NAME, 
             COUNT(case WHEN a.LATEARRIVAL = 'LATE' THEN 1 ELSE NULL END) AS LATEARRIVALS,
             SUM(a.OVERTIMEHOURS) AS TOTALOVERTIMEHOURS,
-            COUNT(CASE WHEN a.STATUS = 'ABSENT' THEN 1 ELSE NULL END) AS TOTALABSENTS,
             COUNT(CASE WHEN a.STATUS = 'PRESENT' THEN 1 ELSE NULL END) AS TOTALPRESENTS
             FROM Employee_G5_Jan16 e LEFT JOIN Attendance_G5_Jan16 a ON e.ID = a.EMPID
             WHERE a.ATTENDANCEDATE BETWEEN :fromDate AND
@@ -44,8 +43,8 @@ public interface TimeRecordRepository extends JpaRepository<TimeRecord, Integer>
                     (String) row[1],
                     (BigDecimal) row[2],
                     (BigDecimal) row[3],
-                    (BigDecimal) row[4],
-                    (BigDecimal) row[5]
+                    (BigDecimal) row[4]
+
             );
             reports.add(report);
         }
@@ -58,7 +57,6 @@ public interface TimeRecordRepository extends JpaRepository<TimeRecord, Integer>
             SELECT e.ID, e.NAME, 
             COUNT(case WHEN a.LATEARRIVAL = 'LATE' THEN 1 ELSE NULL END) AS LATEARRIVALS,
             SUM(a.OVERTIMEHOURS) AS TOTALOVERTIMEHOURS,
-            COUNT(CASE WHEN a.STATUS = 'ABSENT' THEN 1 ELSE NULL END) AS TOTALABSENTS,
             COUNT(CASE WHEN a.STATUS = 'PRESENT' THEN 1 ELSE NULL END) AS TOTALPRESENTS
             FROM Employee_G5_Jan16 e LEFT JOIN Attendance_G5_Jan16 a ON e.ID = a.EMPID
             WHERE e.ID = :id AND
@@ -75,16 +73,15 @@ public interface TimeRecordRepository extends JpaRepository<TimeRecord, Integer>
         }
         
         Object[] row = data.get(0);
-        
-        AttendanceReport report = new AttendanceReport(
+
+        return new AttendanceReport(
                 (Integer) row[0],
                 (String) row[1],
                 (BigDecimal) row[2],
                 (BigDecimal) row[3],
-                (BigDecimal) row[4],
-                (BigDecimal) row[5]
+                (BigDecimal) row[4]
+
         );
-        return report;
     }
 
 }

@@ -16,6 +16,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -108,6 +109,11 @@ public class TimeRecordController {
 		return ResponseEntity.ok(recordList);
 	}
 
+	@GetMapping("/payroll/{id}")
+	public ResponseEntity<Double> generatePayroll(@PathVariable Integer id,@RequestBody String month) throws IOException {
+		return ResponseEntity.ok(timeRecordService.calculatePayroll(id,month));
+	}
+
 	@GetMapping("/report")
 	public ResponseEntity<List<AttendanceReport>> generateReport(@RequestParam("from") String fromDate,
 			@RequestParam("to") String toDate) throws ParseException {
@@ -142,6 +148,8 @@ public class TimeRecordController {
 			return ResponseEntity.ok(result);
 		return ResponseEntity.notFound().build();
 	}
+
+
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<List<TimeRecord>> removeTimeRecord(@PathVariable Integer id) {
