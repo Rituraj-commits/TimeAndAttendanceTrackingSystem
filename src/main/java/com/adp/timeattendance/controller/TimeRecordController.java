@@ -110,12 +110,18 @@ public class TimeRecordController {
 		return ResponseEntity.ok(recordList);
 	}
 
-	@GetMapping("/payroll/{id}/{month}")
-	public ResponseEntity<PayrollResponse> generatePayroll(@PathVariable("id") Integer id, @PathVariable("month") String month) throws IOException {
-		
-		PayrollResponse payrollResponse = timeRecordService.calculatePayroll(id,month);
-		return ResponseEntity.ok(payrollResponse);
+	@GetMapping("/payroll/{id}")
+	public ResponseEntity<List<PayrollResponse>> generateAllRecordById(@PathVariable Integer id) throws IOException {
+		List<PayrollResponse> payrollResponses = timeRecordService.calculateAllPayroll(id);
+		return ResponseEntity.ok(payrollResponses);
+	}
 
+	@GetMapping("/payroll/{id}/{month}/{year}")
+	public ResponseEntity<PayrollResponse> generatePayroll(@PathVariable("id") Integer id, @PathVariable("month") String month, @PathVariable("year") String year) throws IOException {
+		
+		PayrollResponse payrollResponse = timeRecordService.calculatePayroll(id,month,year);
+		if (payrollResponse!=null) return ResponseEntity.ok(payrollResponse);
+		return ResponseEntity.notFound().build();
 	}
 
 	@GetMapping("/report")

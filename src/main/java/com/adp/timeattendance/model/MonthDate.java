@@ -8,14 +8,20 @@ public class MonthDate {
     private String startDate;
     private String endDate;
 
+    private String year;
+
     public String getName() {
         return name;
+    }
+
+    public String getYear(){
+        return year;
     }
 
     public void setName(String name) {
         this.name = name;
     }
-
+    public void setYear(String year) {this.year = year;}
     public Integer getSpecifier() {
         return specifier;
     }
@@ -51,11 +57,12 @@ public class MonthDate {
     public MonthDate() {
     }
 
-    public MonthDate(String name, Integer specifier, Integer numberOfDays, String startDate, String endDate) {
+    public MonthDate(String name, Integer specifier, Integer numberOfDays, String startDate, String endDate,String year) {
         this.name = name;
         this.specifier = specifier;
         this.numberOfDays = numberOfDays;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.year = year;
     }
 }

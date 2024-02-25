@@ -17,14 +17,11 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Time;
 
-import java.util.Date;
+import java.util.*;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+
 import org.json.JSONObject;
 
 @Service
@@ -242,7 +239,60 @@ public class TimeRecordService {
 
 	}
 
-	public PayrollResponse calculatePayroll(Integer id,String month) throws IOException {
+	public List<PayrollResponse> calculateAllPayroll(Integer id) throws IOException{
+		ObjectMapper objectMapper = new ObjectMapper();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Double perDayPay = 2248.0;
+		Double payPerHour = perDayPay/9.0;
+		Double payroll = 0.0;
+		List<PayrollResponse> payrollResponses = new ArrayList<>();
+
+		MonthDate[] monthDates = objectMapper.readValue(new File("src/main/java/com/adp/timeattendance/months.json"),MonthDate[].class);
+		for(MonthDate months:monthDates){
+			Date startDate = null;
+			try {
+				System.out.println(months.getStartDate());
+				startDate =  dateFormat.parse(months.getStartDate());
+				System.out.println(startDate);
+
+
+			} catch (ParseException e) {
+				throw new RuntimeException(e);
+			}
+			Date endDate = null;
+			try {
+				System.out.println(months.getEndDate());
+				endDate = dateFormat.parse(months.getEndDate());
+
+			} catch (ParseException e) {
+				throw new RuntimeException(e);
+			}
+
+			AttendanceReport attendanceReport = timeRecordRepository.findAttendanceReportById(id,startDate,endDate);
+			if(attendanceReport == null ) continue;
+			else System.out.println("Not null");
+
+			Integer overtimeHours = attendanceReport.getTotalOvertimeHours().intValue();
+			Integer presentDays = attendanceReport.getTotalPresents().intValue();
+			Double regularPay = presentDays.doubleValue()*perDayPay;
+			regularPay = Math.round(regularPay* 10.0)/10.0;
+			Double overtimePay = overtimeHours.doubleValue()*payPerHour;
+			overtimePay = Math.round(overtimePay* 10.0)/10.0;
+
+			System.out.println(attendanceReport.getTotalOvertimeHours().doubleValue());
+			System.out.println(attendanceReport.getTotalPresents().doubleValue());
+			payroll = attendanceReport.getTotalOvertimeHours().doubleValue()*payPerHour + attendanceReport.getTotalPresents().doubleValue()*perDayPay;
+			payroll = Math.round(payroll* 10.0)/10.0;
+
+
+			PayrollResponse payrollResponse = new PayrollResponse(payroll, overtimeHours, presentDays, regularPay, overtimePay,dateFormat.format(endDate));
+			payrollResponses.add(payrollResponse);
+
+		}
+		return payrollResponses;
+	}
+
+	public PayrollResponse calculatePayroll(Integer id,String month,String year) throws IOException {
 		ObjectMapper objectMapper = new ObjectMapper();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Double perDayPay = 2248.0;
@@ -252,10 +302,11 @@ public class TimeRecordService {
 //		String new_month = jsonObject.getString("month");
 		
 		String new_month = month;
+		String new_year = year;
 		MonthDate[] monthDates = objectMapper.readValue(new File("src/main/java/com/adp/timeattendance/months.json"),MonthDate[].class);
 		for(MonthDate months:monthDates){
 			System.out.println(months.getName());
-			if(months.getName().equals(new_month)){
+			if(months.getName().equals(new_month) && months.getYear().equals(new_year)){
 				Date startDate = null;
 				try {
 					System.out.println(months.getStartDate());
@@ -291,8 +342,9 @@ public class TimeRecordService {
 				System.out.println(attendanceReport.getTotalPresents().doubleValue());
 				payroll = attendanceReport.getTotalOvertimeHours().doubleValue()*payPerHour + attendanceReport.getTotalPresents().doubleValue()*perDayPay;
 				payroll = Math.round(payroll* 10.0)/10.0;
+
 				
-				PayrollResponse payrollResponse = new PayrollResponse(payroll, overtimeHours, presentDays, regularPay, overtimePay);
+				PayrollResponse payrollResponse = new PayrollResponse(payroll, overtimeHours, presentDays, regularPay, overtimePay,dateFormat.format(endDate));
 				return payrollResponse;
 			}
 		}
