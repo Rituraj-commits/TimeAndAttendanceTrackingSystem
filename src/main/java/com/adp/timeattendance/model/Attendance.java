@@ -8,7 +8,7 @@ import com.adp.timeattendance.enums.Status;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="Attendance_G5_Jan16")
+@Table(name="Attendance_G5_Jan16_4_new")
 public class Attendance {
 	
 	@Id

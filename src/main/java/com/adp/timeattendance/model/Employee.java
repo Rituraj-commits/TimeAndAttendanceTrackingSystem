@@ -4,12 +4,13 @@ package com.adp.timeattendance.model;
 import com.adp.timeattendance.enums.Department;
 import com.adp.timeattendance.enums.JobTitle;
 
+import com.adp.timeattendance.enums.Role;
 import jakarta.persistence.*;
 
 import java.util.List;
 
 @Entity
-@Table(name="Employee_G5_Jan16")
+@Table(name="Employee_G5_Jan16_4_new")
 public class Employee {
 	
 	@Id
@@ -21,11 +22,11 @@ public class Employee {
 	@JoinColumn(name="ShiftId")
 	private TimeShift timeShift;
 
-	@OneToMany(mappedBy = "employeeId", cascade = CascadeType.ALL)
-	private List<TimeRecord> timeRecords;
-
-	@OneToMany(mappedBy = "employeeId",cascade = CascadeType.ALL)
-	private List<Attendance> attendances;
+//	@OneToMany(mappedBy = "employeeId", cascade = CascadeType.ALL)
+//	private List<TimeRecord> timeRecords;
+//
+//	@OneToMany(mappedBy = "employeeId",cascade = CascadeType.ALL)
+//	private List<Attendance> attendances;
 
 	@Column(nullable = false)
 	private String name;
@@ -43,6 +44,32 @@ public class Employee {
 	@Column(columnDefinition = "VARCHAR(50)")
 	@Enumerated(EnumType.STRING)
 	private Department department;
+
+	@Column(nullable = false)
+	private String password;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private Role role;
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
+
+
 
 	public Employee() {
 		super();

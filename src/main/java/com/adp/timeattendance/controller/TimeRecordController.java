@@ -15,6 +15,7 @@ import ch.qos.logback.core.joran.conditional.IfAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -68,6 +69,7 @@ public class TimeRecordController {
 //    }
 
 	@PostMapping
+	@PreAuthorize("hasAnyAuthority('ADMIN','USER') and #timeRecordReq.getEmployeeId() == authentication.principal.id")
 	public ResponseEntity<TimeRecord> addTimeRecord(@RequestBody TimeRecordReq timeRecordReq) {
 
 		Employee employee = employeeService.read(timeRecordReq.getEmployeeId());
@@ -99,24 +101,28 @@ public class TimeRecordController {
 	}
 
 	@GetMapping
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<List<TimeRecord>> generateRecords() {
 		List<TimeRecord> recordList = timeRecordService.getAllTimeRecords();
 		return ResponseEntity.ok(recordList);
 	}
 
 	@GetMapping("/{id}")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<List<TimeRecord>> generateRecordById(@PathVariable Integer id) {
 		List<TimeRecord> recordList = timeRecordService.getTimeRecordByEmployeeId(id);
 		return ResponseEntity.ok(recordList);
 	}
 
 	@GetMapping("/payroll/{id}")
+	@PreAuthorize("hasAnyAuthority('ADMIN','USER') and (hasAuthority('ADMIN') or authentication.principal.id == #id)")
 	public ResponseEntity<List<PayrollResponse>> generateAllRecordById(@PathVariable Integer id) throws IOException {
 		List<PayrollResponse> payrollResponses = timeRecordService.calculateAllPayroll(id);
 		return ResponseEntity.ok(payrollResponses);
 	}
 
 	@GetMapping("/payroll/{id}/{month}/{year}")
+	@PreAuthorize("hasAnyAuthority('ADMIN','USER') and (hasAuthority('ADMIN') or authentication.principal.id == #id)")
 	public ResponseEntity<PayrollResponse> generatePayroll(@PathVariable("id") Integer id, @PathVariable("month") String month, @PathVariable("year") String year) throws IOException {
 		
 		PayrollResponse payrollResponse = timeRecordService.calculatePayroll(id,month,year);
@@ -125,6 +131,7 @@ public class TimeRecordController {
 	}
 
 	@GetMapping("/report")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<List<AttendanceReport>> generateReport(@RequestParam("from") String fromDate,
 			@RequestParam("to") String toDate) throws ParseException {
 
@@ -143,6 +150,7 @@ public class TimeRecordController {
 	}
 
 	@GetMapping("/report/{id}")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<AttendanceReport> generateReportById(@PathVariable("id") Integer id,
 			@RequestParam("from") String fromDate, @RequestParam("to") String toDate) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -159,14 +167,5 @@ public class TimeRecordController {
 		return ResponseEntity.notFound().build();
 	}
 
-
-
-	@DeleteMapping("/{id}")
-	public ResponseEntity<List<TimeRecord>> removeTimeRecord(@PathVariable Integer id) {
-		List<TimeRecord> deletedRecords = timeRecordService.deleteTimeRecordById(id);
-		if (deletedRecords != null)
-			return ResponseEntity.ok(deletedRecords);
-		return ResponseEntity.notFound().build();
-	}
 
 }

@@ -1,6 +1,13 @@
 package com.adp.timeattendance.enums;
 
-public enum JobTitle {
+import org.springframework.security.core.GrantedAuthority;
+
+public enum JobTitle implements GrantedAuthority {
 	MANAGER,
-	EMPLOYEE	
+	EMPLOYEE;
+
+	@Override
+	public String getAuthority() {
+		return this.name();
+	}
 }

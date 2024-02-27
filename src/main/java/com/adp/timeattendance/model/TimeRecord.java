@@ -19,7 +19,7 @@ import jakarta.persistence.Table;
 import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 
 @Entity
-@Table(name="TimeRecord_G5_Jan16")
+@Table(name="TimeRecord_G5_Jan16_4_new")
 public class TimeRecord {
 	
 	@Id

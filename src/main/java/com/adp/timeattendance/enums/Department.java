@@ -1,6 +1,13 @@
 package com.adp.timeattendance.enums;
 
-public enum Department {
+import org.springframework.security.core.GrantedAuthority;
 
-	HR, GBS, GPT, BOO, GSO
+public enum Department implements GrantedAuthority {
+
+	HR, GBS, GPT, BOO, GSO;
+
+	@Override
+	public String getAuthority() {
+		return this.name();
+	}
 }

@@ -104,5 +104,14 @@
     "endDate": "2024-01-31",
     "year": "2024"
 
+  },
+  {
+    "name": "February",
+    "specifier": 1,
+    "numberOfDays": 29,
+    "startDate": "2024-02-01",
+    "endDate": "2024-02-29",
+    "year": "2024"
+
   }
 ]
