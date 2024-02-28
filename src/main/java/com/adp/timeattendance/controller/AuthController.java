@@ -32,7 +32,7 @@ public class AuthController {
     public ResponseEntity<UserDto> register(@RequestBody @Valid SignUptDto user) {
         UserDto createdUser = userServiceClass.register(user);
         createdUser.setToken(userAuthenticationProvider.createToken(createdUser));
-        return ResponseEntity.created(URI.create("/employees/" + createdUser.getId())).body(createdUser);
+        return ResponseEntity.ok(createdUser);
     }
 
 }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-02-27T17:17:51+0530",
+    date = "2024-02-28T11:09:31+0530",
     comments = "version: 1.5.2.Final, compiler: javac, environment: Java 17.0.3.1 (Oracle Corporation)"
 )
 @Component
@@ -42,13 +42,13 @@ public class UserMapperImpl implements UserMapper {
 
         Employee employee = new Employee();
 
-        employee.setJobTitle( signUpDto.getJobTitle() );
-        employee.setDepartment( signUpDto.getDepartment() );
-        employee.setTimeShift( signUpDto.getTimeShift() );
-        employee.setRole( signUpDto.getRole() );
         employee.setName( signUpDto.getName() );
+        employee.setRole( signUpDto.getRole() );
+        employee.setTimeShift( signUpDto.getTimeShift() );
         employee.setEmail( signUpDto.getEmail() );
         employee.setPhone( signUpDto.getPhone() );
+        employee.setJobTitle( signUpDto.getJobTitle() );
+        employee.setDepartment( signUpDto.getDepartment() );
 
         return employee;
     }

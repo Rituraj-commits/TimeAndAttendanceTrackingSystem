@@ -32,55 +32,60 @@ public class EmployeeController {
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    public ResponseEntity<List<Employee>> retrieveAllEmployee(){
+    public ResponseEntity<List<Employee>> retrieveAllEmployee() {
         List<Employee> employees = employeeService.read();
 
         return ResponseEntity.ok(employees);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER') and authentication.principal.id == #id")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable Integer id){
+    @PreAuthorize("hasAuthority('ADMIN') or authentication.principal.id == #id")
+    public ResponseEntity<Employee> getEmployeeById(@PathVariable Integer id) {
         Employee employee = employeeService.read(id);
 
-        if(employee!=null) return ResponseEntity.ok(employee);
+        if (employee != null) return ResponseEntity.ok(employee);
         return ResponseEntity.notFound().build();
     }
-    
-//    @PostMapping
-//
-//    public ResponseEntity<Employee> addEmployee(@RequestBody Employee newEmployee)
-//    {
-//    	Employee createdEmployee = employeeService.create(newEmployee);
-//    	return ResponseEntity.ok(createdEmployee);
-//    }
+
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    public ResponseEntity<Employee> updateEmployeeById(@RequestBody Employee updatedEmployee){
+    @PreAuthorize("hasAuthority('ADMIN') or authentication.principal.id == #updatedEmployee.id")
+    public ResponseEntity<Employee> updateEmployeeById(@RequestBody Employee updatedEmployee) {
         Employee employee = employeeService.update(updatedEmployee);
-        if(employee!=null) return ResponseEntity.ok(employee);
+        if (employee != null) return ResponseEntity.ok(employee);
         return ResponseEntity.notFound().build();
     }
 
-
     @DeleteMapping("/{id}")
-    @Transactional
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Employee delete(@PathVariable Integer id){
+    public Employee delete(@PathVariable Integer id) {
         Employee employee = employeeService.read(id);
-        {
-            if(employee!=null)
-            {
-
-                // Delete TimeRecords and Attendances
-                timeRecordRepository.deleteByEmployeeId(employee);
-                attendanceRepository.deleteByEmployeeId(employee);
-
-                employeeRepository.delete(employee);
-            }
+        if (employee != null) {
+            employeeService.delete(id);
         }
         return employee;
     }
+
+
+//    @DeleteMapping("/{id}")
+//    @Transactional
+//    @PreAuthorize("hasAuthority('ADMIN')")
+//    public Employee delete(@PathVariable Integer id){
+//        Employee employee = employeeService.read(id);
+//        {
+//            if(employee!=null)
+//            {
+//
+//                // Delete TimeRecords and Attendances
+//                timeRecordRepository.deleteByEmployeeId(employee);
+//                attendanceRepository.deleteByEmployeeId(employee);
+//
+//                employeeRepository.delete(employee);
+//            }
+//        }
+//        return employee;
+//    }
+
+
 }
 

@@ -6,6 +6,7 @@ import java.sql.Time;
 import com.adp.timeattendance.enums.ClockEvent;
 import com.adp.timeattendance.enums.LateArrivalStatus;
 import com.adp.timeattendance.enums.Status;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,7 +20,7 @@ import jakarta.persistence.Table;
 import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 
 @Entity
-@Table(name="TimeRecord_G5_Jan16_4_new")
+@Table(name="TimeRecord_G5_Jan16_10")
 public class TimeRecord {
 	
 	@Id
@@ -27,6 +28,7 @@ public class TimeRecord {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 
+	@JsonBackReference
 	@ManyToOne
 	@JoinColumn(name = "empId")
 	private Employee employeeId;

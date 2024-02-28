@@ -331,6 +331,7 @@ public class TimeRecordService {
 //				df.setMaximumFractionDigits(2);
 
 				AttendanceReport attendanceReport = timeRecordRepository.findAttendanceReportById(id,startDate,endDate);
+				if(attendanceReport == null) return null;
 				Integer overtimeHours = (Integer) attendanceReport.getTotalOvertimeHours().intValue();
 				Integer presentDays = (Integer) attendanceReport.getTotalPresents().intValue();
 				Double regularPay = presentDays.doubleValue()*perDayPay;

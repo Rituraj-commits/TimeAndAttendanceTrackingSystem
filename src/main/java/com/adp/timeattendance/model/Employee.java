@@ -5,12 +5,13 @@ import com.adp.timeattendance.enums.Department;
 import com.adp.timeattendance.enums.JobTitle;
 
 import com.adp.timeattendance.enums.Role;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.List;
 
 @Entity
-@Table(name="Employee_G5_Jan16_4_new")
+@Table(name="Employee_G5_Jan16_10")
 public class Employee {
 	
 	@Id
@@ -22,11 +23,13 @@ public class Employee {
 	@JoinColumn(name="ShiftId")
 	private TimeShift timeShift;
 
-//	@OneToMany(mappedBy = "employeeId", cascade = CascadeType.ALL)
-//	private List<TimeRecord> timeRecords;
-//
-//	@OneToMany(mappedBy = "employeeId",cascade = CascadeType.ALL)
-//	private List<Attendance> attendances;
+	@JsonManagedReference
+	@OneToMany(mappedBy = "employeeId", cascade = CascadeType.ALL)
+	private List<TimeRecord> timeRecords;
+
+	@JsonManagedReference
+	@OneToMany(mappedBy = "employeeId",cascade = CascadeType.ALL)
+	private List<Attendance> attendances;
 
 	@Column(nullable = false)
 	private String name;

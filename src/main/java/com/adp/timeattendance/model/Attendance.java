@@ -5,16 +5,18 @@ import java.sql.Date;
 import com.adp.timeattendance.enums.LateArrivalStatus;
 import com.adp.timeattendance.enums.Status;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="Attendance_G5_Jan16_4_new")
+@Table(name="Attendance_G5_Jan16_10")
 public class Attendance {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 	
+	@JsonBackReference
 	@ManyToOne
 	@JoinColumn(name = "empId")
 	private Employee employeeId;
